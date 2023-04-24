@@ -22,14 +22,14 @@ The extension is now installed and ready to use. You will see the OpenAI Fact Hi
 * OpenAI API Key: This extension uses the OpenAI API and requires an API key to run. The first time you use the extension, you'll need to enter in your API key in the extension pop-up. The API key is stored locally in your browser for future use.
 
 ## Usage
-* Navigate to a webpage containing text that you'd like to analyze.
-* Click the OpenAI Fact Highlighter icon in your browser's toolbar.
-* Click the "Highlight Facts" button in the popup.
+1) Navigate to a webpage containing text that you'd like to analyze.
+2) Click the OpenAI Fact Highlighter icon in your browser's toolbar.
+3) Click the "Highlight Facts" button in the popup.
 
 The extension will process the text on the page and highlight factual assertions in green.
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a pull request or create an issue to report bugs or suggest new features.
 
-License
+## License
 This project is licensed under the MIT License. See the LICENSE file for details.
