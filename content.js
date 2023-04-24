@@ -13,7 +13,14 @@ function processText(apiKey, text) {
       xhttp.setRequestHeader("Authorization", `Bearer ${apiKey}`);
       xhttp.send(JSON.stringify({
         model: "gpt-3.5-turbo",
-        messages: [{"role": "user", "content": `Please present a list of sentences from the following article that are asserting facts. A fact is a statement or piece of information that is objectively true, accurate, and can be verified through evidence or reliable sources. Facts are based on empirical data, logical reasoning, or observation, and they remain consistent regardless of individual opinions, beliefs, or interpretations. In essence, a fact is an established reality or truth that is widely accepted and can be proven or demonstrated through various means, such as scientific experiments, historical records, or credible documentation. Put each raw sentence on a new line and do not prefix any bulleted list characters.\n"${text}"`}] ,
+        messages: [{"role": "user", "content":
+        `Please identify the sections of the text that assert facts. Please \
+        reply with a json object containing a "facts" key with an array value \
+        of exact string matches to the original text. The facts must be exact \
+        matches of the sentence fragments from the original text. This json \
+        will later be used by a chrome extension to mark spans of the original \
+        text, so the fact strings must be exact matches of the original text.\
+        \n\nText:\n"${text}"`}] ,
         max_tokens: 1000,
         n: 1,
         stop: null,
@@ -34,19 +41,33 @@ function processText(apiKey, text) {
     const articleDOM = parser.parseFromString(article.content, "text/html");
     const paragraphs = articleDOM.querySelectorAll("p");
   
-    paragraphs.forEach(async (paragraph) => {
-      const originalParagraph = document.evaluate(`//p[text()="${paragraph.textContent}"]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-      if (!originalParagraph) {
-        return;
+    for (let i = 0; i < paragraphs.length; i += 3) {
+      const paragraphGroup = [];
+      for (let j = 0; j < 3 && i + j < paragraphs.length; j++) {
+        paragraphGroup.push(paragraphs[i + j]);
       }
   
-      const processedText = await processText(apiKey, paragraph.textContent);
+      const originalParagraphs = paragraphGroup.map((paragraph) => {
+        return document.evaluate(`//p[text()="${paragraph.textContent}"]`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      });
   
-      const factSentences = processedText.choices[0].message.content.split("\n");
-      const regex = new RegExp(`(${factSentences.map((sentence) => sentence.trim()).join("|")})`, "g");
+      const combinedText = paragraphGroup.map((paragraph) => paragraph.textContent).join("\n\n");
   
-      originalParagraph.innerHTML = originalParagraph.textContent.replace(regex, (match) => `<span class="highlight-fact">${match}</span>`);
-    });
+      processText(apiKey, combinedText).then((processedText) => {
+        const contentJson = JSON.parse(processedText.choices[0].message.content);
+        const factSentences = contentJson.facts;
+  
+        originalParagraphs.forEach((originalParagraph, index) => {
+          if (!originalParagraph) {
+            return;
+          }
+  
+          const regex = new RegExp(`(${factSentences.map((sentence) => sentence.trim()).join("|")})`, "g");
+  
+          originalParagraph.innerHTML = originalParagraph.textContent.replace(regex, (match) => `<span class="highlight-fact">${match}</span>`);
+        });
+      });
+    }
   }
   
   chrome.runtime.onMessage.addListener((request) => {
