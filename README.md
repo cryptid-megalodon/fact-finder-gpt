@@ -1,9 +1,9 @@
 # FactFinderGPT
 
-![OpenAI Fact Highlighter Demo](https://cryptid-megalodon.github.io/images/FactFinderGPT_Demo_Sreenshot.png)
-
 OpenAI Fact Highlighter is a Chrome extension that uses OpenAI API to analyze text on a webpage and highlights sentences that are identified as factual assertions. This extension is perfect for quickly identifying key factual information on news articles, blog posts, and other text-heavy webpages.
 Warning: This is a proof of concept for a larger project to detect facts and assign a credibility score based on corroborating websites. It is an experiment with the out-of-the-box fact classification capabilities of the GPT models and has many false positive / false negative classifications.
+
+![OpenAI Fact Highlighter Demo](https://cryptid-megalodon.github.io/images/FactFinderGPT_Demo_Sreenshot.png)
 
 ## Features
 * Highlights factual assertions in green
